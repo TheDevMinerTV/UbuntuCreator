@@ -11,7 +11,7 @@ sudo apt-get install squashfs-tools genisoimage -y
 
 
 
-sudo cp ./ubuntucreator.sh /usr/bin/
+sudo cp UbuntuCreator/ubuntucreator.sh /usr/bin/
 
 
 echo Finished successfully . . .
