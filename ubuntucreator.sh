@@ -28,16 +28,6 @@ echo
 echo
 
 
-echo
-echo !
-echo !--Installing the depencies . . .
-echo !
-echo
-echo
-
-sudo apt-get install squashfs-tools genisoimage -y
-
-echo
 echo !
 echo !--Mounting the ISO image . . .
 echo !
