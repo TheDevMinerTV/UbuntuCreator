@@ -1,7 +1,7 @@
 #!/bin/bash
 
 sudo mkdir $1
-
+SOURCE=$1
 
 echo
 echo
