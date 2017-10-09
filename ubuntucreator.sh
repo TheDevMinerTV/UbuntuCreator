@@ -1,6 +1,8 @@
 #!/bin/bash
 SOURCE=/mnt/ubuntu-live
-sudo mkdir $SOURCE
+if [ sudo mkdir $1 != 1] ; then
+  exit 1
+fi
 
 echo
 echo
