@@ -1,8 +1,7 @@
 #!/bin/bash
-SOURCE=/mnt/ubuntu-live
-if [ sudo mkdir $1 != 1] ; then
-  exit 1
-fi
+
+sudo mkdir $1
+
 
 echo
 echo
