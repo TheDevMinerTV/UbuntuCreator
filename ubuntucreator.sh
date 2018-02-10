@@ -35,7 +35,7 @@ echo
 echo
 
 sudo mkdir $SOURCEMNT
-mount -o loop $ISO $SOURCE
+mount -o loop $ISO $SOURCEMNT
 
 
 echo
@@ -57,7 +57,7 @@ echo
 
 cd "${WORK}"
 mkdir ubuntu-livecd
-cp -a "${SOURCE}/." ubuntu-livecd
+cp -a "${SOURCEMNT}/." ubuntu-livecd
 sudo chmod -R u+w ubuntu-livecd 
 
 
