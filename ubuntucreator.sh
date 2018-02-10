@@ -19,7 +19,7 @@ read NAME
 echo !!!--Where is your base iso image?------------------!!!
 read ISO
 echo !!!--Where should the iso image be mounted?---------!!!
-read SOURCE
+read SOURCEMNT
 echo !!!--How big will the temporary filesystem be?------!!!
 echo !!!--Give it in Mbytes--min size of iso image by 4--!!!
 read SIZE
@@ -34,7 +34,7 @@ echo !
 echo
 echo
 
-sudo mkdir $1
+sudo mkdir $SOURCEMNT
 mount -o loop $ISO $SOURCE
 
 
