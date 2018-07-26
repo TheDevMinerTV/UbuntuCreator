@@ -1,3 +1,6 @@
 # UbuntuCreator
 
-A little Bash-Script for remastering of live-cds/dvds 
+A little bash-script for remastering of live-cds/dvds 
+
+# Steps to setup the program
+
