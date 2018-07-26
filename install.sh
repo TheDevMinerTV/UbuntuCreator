@@ -7,17 +7,17 @@ echo !
 echo
 echo
 
-sudo apt-get install squashfs-tools genisoimage -y
+sudo apt-get install squashfs-tools genisoimage dialog -y
 
-chmod u+x ./ubuntucreator.sh
+chmod u+x ./bin/ucreator
 
 echo 
 echo !
-echo !--Installing to /usr/bin/ucreator
+echo !--Extending PATH to `pwd`
 echo !
 echo 
 
-sudo cp ./ubuntucreator.sh /usr/bin/ucreator
+echo "PATH=`pwd`/bin:\$PATH" >>  ~/.bashrc
 
 echo Finished successfully . . .
 
