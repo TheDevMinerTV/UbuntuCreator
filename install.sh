@@ -17,6 +17,7 @@ if [ -n "$1" ]
   else
   echo Defaulting to /usr/bin
   INSTDIR = /usr/bin
+fi
 
 sudo cp ./ubuntucreator.sh $INSTDIR
 
