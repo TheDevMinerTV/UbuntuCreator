@@ -11,7 +11,12 @@ sudo apt-get install squashfs-tools genisoimage -y
 
 chmod u+x ./ubuntucreator.sh
 
-if [
+if [ -n "$1" ]
+  then
+  INSTDIR = $1
+  else
+  echo Defaulting to /usr/bin
+  INSTDIR = /usr/bin
 
 sudo cp ./ubuntucreator.sh $INSTDIR
 
