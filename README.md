@@ -2,14 +2,13 @@
 
 A little bash-script for remastering of live-cds/dvds 
 
-# Important
+## Important
 
-- Do not delete the UbuntuCreator directory after installation
+- **Do not delete the UbuntuCreator directory after installation**
 - Use the uninstaller script for that
 
-# Steps to setup the program
+## Steps to setup the program
 
-- Install the program by running:
-	sudo bash ./install.sh
-  This will setup the $PATH variable correctly and install some neccesary tools for the image generation
+- Install the program by running: `sudo bash ./install.sh`
+\nThis will setup the $PATH variable correctly and install some neccesary tools for the image generation
 
