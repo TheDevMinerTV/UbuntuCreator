@@ -1,0 +1,16 @@
+:Mounting iso
+:Create WRKSPC
+:Copying Files from ISO
+:Mounting old SquashFS
+:Creating new fs
+:Copying Files from ISO & extracting them
+:Unmounting old SquashFS
+:Create networkconfig
+:Chrooting
+:Remove NTWRKConf
+:Generating fs.manifest
+:Overriding Files
+:Creating new SquashFS
+:Calculating MD5-sums
+:Generating new ISO
+:Cleaning up
