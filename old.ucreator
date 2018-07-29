@@ -1,0 +1,239 @@
+#!/bin/bash
+
+echo $1
+
+if [ "$1" == "--xdialog" ]
+then
+  DIALOG=Xdialog
+else
+  DIALOG=dialog
+fi
+
+# DIALOG=dialog
+
+if [ $USER != "root" ]
+then
+  echo "You must be root to run this program"
+  exit
+fi
+
+$DIALOG --msgbox "Welcome to UbuntuCreator by TheDevMinerTV" 40 58
+
+
+WRKSPC=`$DIALOG  --no-cancel --inputbox "Where is your project folder?" 0 0 "" 3>&1 1>&2 2>&3`
+NAME=`$DIALOG  --no-cancel --inputbox "How is your remix called?" 0 0 "" 3>&1 1>&2 2>&3`
+ISO=`$DIALOG  --no-cancel --inputbox "Where is your base iso?" 0 0 "" 3>&1 1>&2 2>&3`
+SOURCEMNT=`$DIALOG  --no-cancel --inputbox "Where should the iso file be mounted?" 0 0 "" 3>&1 1>&2 2>&3`
+SIZE=`$DIALOG  --no-cancel --inputbox "How big should the temporary filesystem be?\nIn MB -- calculate it with iso size times 4" 0 0 "" 3>&1 1>&2 2>&3`
+clear
+
+
+(
+ echo "10" ; 
+ echo "XXX" ; echo "Alle Daten werden gesichert"; echo "XXX"
+ echo "20" ; sleep 1
+ echo "50" ; sleep 1
+ echo "XXX" ; echo "Alle Daten werden archiviert"; echo "XXX"
+ echo "75" ; sleep 1
+ echo "XXX" ; echo "Daten werden ins Webverzeichnis hochgeladen";
+ echo "XXX"
+ echo "100" ; sleep 3
+) |
+$DIALOG --title "Progress" --gauge "Remixing OS to ${NAME}" 8 30
+
+
+echo
+echo !
+echo !--Mounting the ISO image . . .
+echo !
+echo
+echo
+
+sudo mkdir $SOURCEMNT
+mount -o loop $ISO $SOURCEMNT
+
+
+echo
+echo !
+echo !--Creating the WRKSPC folder . . .
+echo !
+echo
+echo
+
+mkdir -p "${WRKSPC}" 
+
+
+echo
+echo !
+echo !--Copying the files from the iso image . . .
+echo !
+echo
+echo
+
+cd "${WRKSPC}"
+mkdir ubuntu-livecd
+cp -a "${SOURCEMNT}/." ubuntu-livecd
+sudo chmod -R u+w ubuntu-livecd 
+
+
+echo
+echo !
+echo !--Finding and deleting the windows files . . .
+echo !
+echo
+echo
+
+find "${WRKSPC}/ubuntu-livecd" -name "*.exe" 
+
+
+echo
+echo !
+echo !--Mounting the old SquashFS filesystem . . .
+echo !
+echo
+echo
+
+mkdir "${WRKSPC}/old"
+sudo mount -t squashfs -o loop,ro "${WRKSPC}/ubuntu-livecd/casper/filesystem.squashfs" "${WRKSPC}/old" 
+
+
+echo
+echo !
+echo !--Creating new filesystem . . .
+echo !
+echo
+echo
+
+sudo dd if=/dev/zero of="${WRKSPC}/ubuntu-fs.ext4" bs=1M count=$SIZE
+sudo mke2fs "${WRKSPC}/ubuntu-fs.ext4" 
+
+
+echo
+echo !
+echo !--Copying and extracting the SquashFS filesystem and unmouting the old SquashFS filesystem . . .
+echo !
+echo
+echo
+
+mkdir "${WRKSPC}/new"
+sudo mount -o loop "${WRKSPC}/ubuntu-fs.ext4" "${WRKSPC}/new"
+sudo cp -a "${WRKSPC}/old/." "${WRKSPC}/new" 
+sudo umount "${WRKSPC}/old" 
+
+
+echo
+echo !
+echo !--Creating network configuration and mounting the "proc" and the "pts" filesystems . . .
+echo !
+echo
+echo
+
+sudo cp /etc/resolv.conf "${WRKSPC}/new/etc/" 
+sudo mount -t proc -o bind /proc "${WRKSPC}/new/proc" 
+sudo mount -o bind /dev/pts "${WRKSPC}/new/dev/pts" 
+
+
+echo
+echo !
+echo !--Chrooting . . .
+echo !--Continue with "exit"
+echo !
+echo
+echo
+
+sudo chroot "${WRKSPC}/new" /bin/bash 
+
+
+echo
+echo !
+echo !--Removing the network configuration and unmounting the "proc" and the "pts" filesystems . . .
+echo !
+echo
+echo
+
+sudo umount "${WRKSPC}/new/proc"
+sudo umount "${WRKSPC}/new/dev/pts"
+sudo rm "${WRKSPC}/new/etc/resolv.conf" 
+
+
+echo
+echo !
+echo !--Generating new filesystem.manifest . . .
+echo !
+echo
+echo
+
+sudo chroot "${WRKSPC}/new" dpkg-query -W --showformat='${Package} ${Version}\n' \
+    > "${WRKSPC}/ubuntu-livecd/casper/filesystem.manifest" 
+
+
+echo
+echo !
+echo !--Overriding deleted files by creating a dummyfile and removing the dummyfile . . .
+echo !
+echo
+echo
+
+sudo dd if=/dev/zero of="${WRKSPC}/new/dummyfile"
+sudo rm "${WRKSPC}/new/dummyfile" 
+
+
+echo
+echo !
+echo !--Creating a new SquashFS image . . .
+echo !
+echo
+echo
+
+sudo rm "${WRKSPC}/ubuntu-livecd/casper/filesystem.squashfs"
+cd "${WRKSPC}/new"
+sudo mksquashfs . "${WRKSPC}/ubuntu-livecd/casper/filesystem.squashfs"
+cd "${WRKSPC}"
+sudo umount "${WRKSPC}/new" 
+
+
+echo
+echo !
+echo !--Calculating new MD5-sums . . .
+echo !
+echo
+echo
+
+cd "${WRKSPC}/ubuntu-livecd"
+sudo find . -type f -print0 |xargs -0 md5sum |sudo tee md5sum.txt 
+
+
+echo
+echo !
+echo !--Generating new ISO Image . . .
+echo !
+echo
+echo
+
+cd "${WRKSPC}"
+sudo genisoimage \
+    -o ${NAME}.iso \
+    -b isolinux/isolinux.bin \
+    -c isolinux/boot.cat \
+    -no-emul-boot \
+    -boot-load-size 4 \
+    -boot-info-table \
+    -r \
+    -V "${NAME}" \
+    -cache-inodes  \
+    -J \
+    -l \
+    ubuntu-livecd 
+
+
+echo
+echo !
+echo !--Cleaning up . . .
+echo !
+echo
+echo
+
+umount ${ISO}
+rm -rf old new ubuntu-livecd ubuntu-fs.ext4
+
+
